@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body class="chat">
+        <div class="chat__sidebar">
+            <h3>People connected</h3>
+            <div id="users"></div>
+             </div>
+
+             <div class="chat__main">
+
+                   <ol id='messages' class="chat__messages"></ol>
+           <div class="chat__footer">
+               <form id="chat" >
+           <input type="text" name="message" />
+           <button>send</button>
+       </form>
+        
+       <button id="geo">send location</button>
+           </div>
+             </div>
+
+        
+
+        <script src="/socket.io/socket.io.js"> </script>
+        <script src="/jquery-3.2.1.min.js"></script>
+        <script>
+         var socket= io();
+           socket.on('connect',()=>{
+           console.log('connected to server');
+
+        
+
+            /*
+           socket.emit('createMessage',{
+               to : 'singhal',
+               text : 'xwsw'
+           });*/
+
+          });
+
+
+
+          
+          socket.on('disconnect',()=>{
+              console.log('disconnected from server');
+          });
+
+          socket.on('newMessage',function(doc){
+              console.log(doc);
+
+              var li=jQuery('<li></li>');
+              li.text(`${doc.user} : ${doc.text}`);
+
+              jQuery('#messages').append(li);
+          });
+
+          socket.on('newLocationMessage',function(pos){
+              var li=jQuery('<li></li>');
+              var a=jQuery('<a target="_blank">My Current Location</a>');
+
+              li.text(`${pos.user}`);
+              a.attr('href',pos.url);
+              li.append(a);
+
+              jQuery('#messages').append(li);
+          })
+
+          jQuery('#chat').on('submit',function(e){
+              e.preventDefault();
+
+              socket.emit('createMessage',{
+                  user: 'user',
+                  text: jQuery('[name=message]').val()
+              },function(){
+
+                  jQuery('[name=message]').val('')
+                  
+              });
+          });
+
+
+          var geoLocation= jQuery('#geo');
+
+          geoLocation.on('click',function(){
+              if(!navigator.geolocation){
+                  return alert('unable to fetch location');
+              }
+
+              navigator.geolocation.getCurrentPosition(function(position){
+               socket.emit('geo-loc',{
+                   latitude: position.coords.latitude,
+                   longitude: position.coords.longitude
+               });
+                
+
+                console.log(position);
+
+              },function(){
+                  alert('not able to fetch');
+
+              });
+          });
+
+        </script
+    </body>
+</html>
