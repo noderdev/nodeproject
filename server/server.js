@@ -2,6 +2,7 @@ const express=require('express');
 const sock=require('socket.io');
 const http=require('http');
 var app=express();
+const port=process.env.PORT || 3000;
 
 var server=http.createServer(app);
 
@@ -65,6 +66,6 @@ socket.on('disconnect',()=>{
 
 
 
-server.listen(3000,()=>{
+server.listen(port,()=>{
     console.log('app starting ....');
 });
